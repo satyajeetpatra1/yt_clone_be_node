@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import dbConnect from "./config/dbConnect.js";
 import authRouter from "./routes/Auth.route.js";
 import channelRouter from "./routes/Channel.route.js";
