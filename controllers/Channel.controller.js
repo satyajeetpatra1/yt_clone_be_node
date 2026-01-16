@@ -9,8 +9,7 @@ export const createChannel = async (req, res) => {
     }
 
     const channel = await Channel.create({
-      channelName: req.body.channelName,
-      description: req.body.description,
+      ...req.body,
       owner: req.user.id,
     });
 
@@ -22,7 +21,9 @@ export const createChannel = async (req, res) => {
 
 export const getMyChannel = async (req, res) => {
   try {
-    const channel = await Channel.findOne({ owner: req.user.id });
+    const channel = await Channel.findOne({ owner: req.user.id }).populate(
+      "owner"
+    );
 
     if (!channel) {
       return res.status(404).json({ message: "Channel not found" });
@@ -57,4 +58,23 @@ export const getChannelById = async (req, res) => {
   } catch {
     res.status(500).json({ message: "Failed to fetch channel" });
   }
+};
+
+export const updateChannel = async (req, res) => {
+  try {
+    const channel = await Channel.findById(req.params.id);
+    if (!channel) {
+      return res.status(404).json({ message: "Channel not found" });
+    }
+
+    if (channel.owner.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+    
+    Object.assign(channel, req.body);
+    await channel.save();
+    res.json(channel);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to update channel" });
+  } 
 };

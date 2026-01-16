@@ -4,11 +4,13 @@ import {
   createChannel,
   getChannelById,
   getMyChannel,
+  updateChannel,
 } from "../controllers/Channel.controller.js";
 
 const channelRouter = express.Router();
 channelRouter.post("/", protect, createChannel);
 channelRouter.get("/me", protect, getMyChannel);
 channelRouter.get("/:id", getChannelById);
+channelRouter.put("/:id", protect, updateChannel);
 
 export default channelRouter;

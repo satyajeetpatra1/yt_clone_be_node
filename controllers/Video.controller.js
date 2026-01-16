@@ -114,7 +114,7 @@ export const updateVideo = async (req, res) => {
 
 export const deleteVideo = async (req, res) => {
   try {
-    const video = await Video.findById(req.params.id);
+    const video = await Video.findById(req.params.id).populate("channel");
     if (!video) {
       return res.status(404).json({ message: "Video not found" });
     }
