@@ -6,7 +6,10 @@ const videoSchema = new mongoose.Schema(
     description: String,
     videoUrl: String, // iframe URL
     thumbnailUrl: String,
-    category: String,
+    category: {
+      type: [String],
+      default: [],
+    },
     channel: { type: mongoose.Schema.Types.ObjectId, ref: "Channel" },
     views: { type: Number, default: 0 },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],

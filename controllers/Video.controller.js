@@ -2,12 +2,21 @@ import Video from "../models/Video.model.js";
 
 export const getVideos = async (req, res) => {
   try {
-    const videos = await Video.find().populate("channel");
+    const { category } = req.query;
+
+    let filter = {};
+
+    if (category && category !== "All") {
+      filter.category = category;
+    }
+
+    const videos = await Video.find(filter)
+      .populate("channel", "channelName avatar")
+      .sort({ createdAt: -1 });
+
     res.json(videos);
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching videos", error: error.message });
+  } catch {
+    res.status(500).json({ message: "Failed to fetch videos" });
   }
 };
 

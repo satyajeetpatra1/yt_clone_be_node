@@ -113,7 +113,16 @@ const seedDB = async () => {
           description: "This is a demo YouTube video description",
           videoUrl: random(iframeVideos),
           thumbnailUrl: random(thumbnails),
-          category: random(categories),
+
+          // ✅ CATEGORY AS ARRAY
+          category: Array.from(
+            new Set(
+              Array(randomInt(1, 3))
+                .fill(null)
+                .map(() => random(categories))
+            )
+          ),
+
           channel: channel._id,
           views: randomInt(100, 10000),
           likes: users.slice(0, randomInt(2, 5)).map((u) => u._id),
@@ -123,7 +132,6 @@ const seedDB = async () => {
         videos.push(video);
       }
     }
-
     console.log("🎬 Videos created");
 
     /* -------- COMMENTS -------- */
