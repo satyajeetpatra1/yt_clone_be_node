@@ -8,11 +8,13 @@ import {
   deleteVideo,
   likeVideo,
   dislikeVideo,
+  searchVideos,
 } from "../controllers/Video.controller.js";
 
 const videoRouter = express.Router();
 
 videoRouter.get("/", getVideos);
+videoRouter.get("/search", searchVideos);
 videoRouter.get("/:id", getVideoById);
 videoRouter.post("/", protect, createVideo);
 videoRouter.put("/:id/like", protect, likeVideo);

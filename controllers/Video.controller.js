@@ -11,6 +11,26 @@ export const getVideos = async (req, res) => {
   }
 };
 
+export const searchVideos = async (req, res) => {
+  try {
+    const { q } = req.query;
+
+    if (!q) {
+      return res.json([]);
+    }
+
+    const videos = await Video.find({
+      title: { $regex: q, $options: "i" },
+    })
+      .populate("channel", "channelName avatar")
+      .sort({ createdAt: -1 });
+
+    res.json(videos);
+  } catch (err) {
+    res.status(500).json({ message: "Search failed" });
+  }
+};
+
 export const getVideoById = async (req, res) => {
   try {
     const video = await Video.findByIdAndUpdate(
