@@ -19,24 +19,6 @@ const avatars = [
   "https://i.pravatar.cc/150?img=16",
 ];
 
-const banners = [
-  "https://placehold.co/1200x300/ff0000/ffffff?text=Tech+Channel",
-  "https://placehold.co/1200x300/0000ff/ffffff?text=Music+Channel",
-  "https://placehold.co/1200x300/00aa00/ffffff?text=Coding+Channel",
-  "https://placehold.co/1200x300/ffaa00/ffffff?text=Vlogs",
-  "https://placehold.co/1200x300/5500aa/ffffff?text=Education",
-  "https://placehold.co/1200x300/222222/ffffff?text=Gaming",
-];
-
-const thumbnails = [
-  "https://placehold.co/320x180/ff0000/ffffff?text=Video+1",
-  "https://placehold.co/320x180/0000ff/ffffff?text=Video+2",
-  "https://placehold.co/320x180/00aa00/ffffff?text=Video+3",
-  "https://placehold.co/320x180/ffaa00/ffffff?text=Video+4",
-  "https://placehold.co/320x180/5500aa/ffffff?text=Video+5",
-  "https://placehold.co/320x180/222222/ffffff?text=Video+6",
-];
-
 const iframeVideos = [
   "https://www.youtube.com/embed/dQw4w9WgXcQ",
   "https://www.youtube.com/embed/9bZkp7q19f0",
@@ -46,13 +28,31 @@ const iframeVideos = [
   "https://www.youtube.com/embed/kJQP7kiw5Fk",
 ];
 
-const categories = ["Tech", "Music", "Education", "Gaming", "Vlogs"];
+const categories = ["Tech", "Music", "Education", "Gaming", "Vlogs", "Comedy", "Movies"];
 
 /* ------------------ HELPERS ------------------ */
 
 const random = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
 const randomInt = (min, max) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
+
+// generate 1–3 unique categories
+const generateCategories = () =>
+  Array.from(
+    new Set(
+      Array(randomInt(1, 3))
+        .fill(null)
+        .map(() => random(categories))
+    )
+  );
+
+// Picsum = hotlink safe ✅
+const generateThumbnail = (seed) =>
+  `https://picsum.photos/seed/video-${seed}/320/180`;
+
+const generateBanner = (seed) =>
+  `https://picsum.photos/seed/banner-${seed}/1200/300`;
 
 /* ------------------ SEED SCRIPT ------------------ */
 
@@ -72,12 +72,12 @@ const seedDB = async () => {
 
     /* -------- USERS -------- */
     const users = [];
-    for (let i = 1; i <= 6; i++) {
+    for (let i = 0; i < 6; i++) {
       const user = await User.create({
-        username: `user${i}`,
-        email: `user${i}@gmail.com`,
+        username: `user${i + 1}`,
+        email: `user${i + 1}@gmail.com`,
         password: await bcrypt.hash("password123", 10),
-        avatar: avatars[i - 1],
+        avatar: avatars[i],
       });
       users.push(user);
     }
@@ -89,9 +89,9 @@ const seedDB = async () => {
     for (let i = 0; i < users.length; i++) {
       const channel = await Channel.create({
         channelName: `${users[i].username} Channel`,
-        description: `Welcome to ${users[i].username}'s channel`,
+        description: `Welcome to ${users[i].username}'s YouTube channel`,
         avatar: users[i].avatar,
-        banner: banners[i],
+        banner: generateBanner(i + 1),
         owner: users[i]._id,
         subscribers: users
           .filter((u) => u._id.toString() !== users[i]._id.toString())
@@ -104,27 +104,24 @@ const seedDB = async () => {
 
     /* -------- VIDEOS -------- */
     const videos = [];
+    let seed = 1;
+
     for (const channel of channels) {
       const videoCount = randomInt(4, 6);
 
       for (let i = 0; i < videoCount; i++) {
+        const videoCategories = generateCategories();
+
         const video = await Video.create({
           title: `Awesome Video ${i + 1}`,
           description: "This is a demo YouTube video description",
           videoUrl: random(iframeVideos),
-          thumbnailUrl: random(thumbnails),
 
-          // ✅ CATEGORY AS ARRAY
-          category: Array.from(
-            new Set(
-              Array(randomInt(1, 3))
-                .fill(null)
-                .map(() => random(categories))
-            )
-          ),
+          thumbnailUrl: generateThumbnail(seed++),
 
+          category: videoCategories,
           channel: channel._id,
-          views: randomInt(100, 10000),
+          views: randomInt(500, 50000),
           likes: users.slice(0, randomInt(2, 5)).map((u) => u._id),
           dislikes: users.slice(0, randomInt(0, 2)).map((u) => u._id),
         });
@@ -132,6 +129,7 @@ const seedDB = async () => {
         videos.push(video);
       }
     }
+
     console.log("🎬 Videos created");
 
     /* -------- COMMENTS -------- */
@@ -148,8 +146,8 @@ const seedDB = async () => {
     }
 
     console.log("💬 Comments created");
-
     console.log("🎉 DATABASE SEEDED SUCCESSFULLY");
+
     process.exit();
   } catch (err) {
     console.error("❌ Seeding failed:", err);
