@@ -6,7 +6,7 @@ import Channel from "../models/Channel.model.js";
 import Video from "../models/Video.model.js";
 import Comment from "../models/Comment.model.js";
 
-const MONGO_URI = "mongodb://127.0.0.1:27017/youtube_clone";
+const MONGO_URI = process.env.MONGO_URI || "";
 
 /* ------------------ DUMMY ASSETS ------------------ */
 
@@ -56,7 +56,7 @@ const generateBanner = (seed) =>
 
 /* ------------------ SEED SCRIPT ------------------ */
 
-const seedDB = async () => {
+export const seedDB = async () => {
   try {
     await mongoose.connect(MONGO_URI);
     console.log("✅ MongoDB connected");

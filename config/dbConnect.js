@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 const dbConnect = async () => {
   try {
     // local mongodb url
-    await mongoose.connect("mongodb://127.0.0.1:27017/youtube_clone");
+    await mongoose.connect(process.env.MONGO_URI);
     console.log("MongoDB Connected");
   } catch (error) {
     console.error(error.message);
